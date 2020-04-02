@@ -5,4 +5,4 @@ Standard Ethereum (ERC-20) Tokens with LexDAO Governance:
 
 ## Governance
 
-[LexDAO](http://nightly.aragon.org/#/lexdao) members vote to resolve lost or dispute balances of LexTokens.
+[LexDAO](http://nightly.aragon.org/#/lexdao) members vote to resolve lost or disputed balances of LexTokens.
