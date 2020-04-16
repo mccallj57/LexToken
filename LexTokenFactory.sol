@@ -132,7 +132,7 @@ contract MinterRole is Context {
     }
 }
 
-contract PauserRole {
+contract PauserRole is Context {
     using Roles for Roles.Role;
 
     event PauserAdded(address indexed account);
@@ -141,7 +141,7 @@ contract PauserRole {
     Roles.Role private _pausers;
 
     modifier onlyPauser() {
-        require(isPauser(msg.sender), "PauserRole: caller does not have the Pauser role");
+        require(isPauser(_msgSender()), "PauserRole: caller does not have the Pauser role");
         _;
     }
 
@@ -154,7 +154,7 @@ contract PauserRole {
     }
 
     function renouncePauser() public {
-        _removePauser(msg.sender);
+        _removePauser(_msgSender());
     }
 
     function _addPauser(address account) internal {
@@ -177,22 +177,21 @@ contract PauserRole {
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-contract Pausable is PauserRole {
+contract Pausable is Context {
     /**
-     * @dev Emitted when the pause is triggered by a pauser (`account`).
+     * @dev Emitted when the pause is triggered by `account`.
      */
     event Paused(address account);
 
     /**
-     * @dev Emitted when the pause is lifted by a pauser (`account`).
+     * @dev Emitted when the pause is lifted by `account`.
      */
     event Unpaused(address account);
 
     bool private _paused;
 
     /**
-     * @dev Initializes the contract in unpaused state. Assigns the Pauser role
-     * to the deployer.
+     * @dev Initializes the contract in unpaused state.
      */
     constructor () internal {
         _paused = false;
@@ -222,19 +221,19 @@ contract Pausable is PauserRole {
     }
 
     /**
-     * @dev Called by a pauser to pause, triggers stopped state.
+     * @dev Triggers stopped state.
      */
-    function pause() public onlyPauser whenNotPaused {
+    function _pause() internal whenNotPaused {
         _paused = true;
-        emit Paused(msg.sender);
+        emit Paused(_msgSender());
     }
 
     /**
-     * @dev Called by a pauser to unpause, returns to normal state.
+     * @dev Returns to normal state.
      */
-    function unpause() public onlyPauser whenPaused {
+    function _unpause() internal whenPaused {
         _paused = false;
-        emit Unpaused(msg.sender);
+        emit Unpaused(_msgSender());
     }
 }
 
@@ -289,8 +288,6 @@ library SafeMath {
      *
      * Requirements:
      * - Subtraction cannot overflow.
-     *
-     * _Available since v2.4.0._
      */
     function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b <= a, errorMessage);
@@ -347,8 +344,6 @@ library SafeMath {
      *
      * Requirements:
      * - The divisor cannot be zero.
-     *
-     * _Available since v2.4.0._
      */
     function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         // Solidity only automatically asserts when dividing by 0
@@ -384,8 +379,6 @@ library SafeMath {
      *
      * Requirements:
      * - The divisor cannot be zero.
-     *
-     * _Available since v2.4.0._
      */
     function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b != 0, errorMessage);
@@ -394,8 +387,64 @@ library SafeMath {
 }
 
 /**
- * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
- * the optional functions; to access them see {ERC20Detailed}.
+ * @dev Collection of functions related to the address type
+ */
+library Address {
+    /**
+     * @dev Returns true if `account` is a contract.
+     *
+     * [IMPORTANT]
+     * ====
+     * It is unsafe to assume that an address for which this function returns
+     * false is an externally-owned account (EOA) and not a contract.
+     *
+     * Among others, `isContract` will return false for the following
+     * types of addresses:
+     *
+     *  - an externally-owned account
+     *  - a contract in construction
+     *  - an address where a contract will be created
+     *  - an address where a contract lived, but was destroyed
+     * ====
+     */
+    function isContract(address account) internal view returns (bool) {
+        // According to EIP-1052, 0x0 is the value returned for not-yet created accounts
+        // and 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 is returned
+        // for accounts without code, i.e. `keccak256('')`
+        bytes32 codehash;
+        bytes32 accountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
+        // solhint-disable-next-line no-inline-assembly
+        assembly { codehash := extcodehash(account) }
+        return (codehash != accountHash && codehash != 0x0);
+    }
+
+    /**
+     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
+     * `recipient`, forwarding all available gas and reverting on errors.
+     *
+     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost
+     * of certain opcodes, possibly making contracts go over the 2300 gas limit
+     * imposed by `transfer`, making them unable to receive funds via
+     * `transfer`. {sendValue} removes this limitation.
+     *
+     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
+     *
+     * IMPORTANT: because control is transferred to `recipient`, care must be
+     * taken to not create reentrancy vulnerabilities. Consider using
+     * {ReentrancyGuard} or the
+     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
+     */
+    function sendValue(address payable recipient, uint256 amount) internal {
+        require(address(this).balance >= amount, "Address: insufficient balance");
+
+        // solhint-disable-next-line avoid-low-level-calls, avoid-call-value
+        (bool success, ) = recipient.call.value(amount)("");
+        require(success, "Address: unable to send value, recipient may have reverted");
+    }
+}
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
  */
 interface IERC20 {
     /**
@@ -473,7 +522,7 @@ interface IERC20 {
  *
  * This implementation is agnostic to the way tokens are created. This means
  * that a supply mechanism has to be added in a derived contract using {_mint}.
- * For a generic mechanism see {ERC20Mintable}.
+ * For a generic mechanism see {ERC20MinterPauser}.
  *
  * TIP: For a detailed writeup see our guide
  * https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226[How
@@ -494,12 +543,64 @@ interface IERC20 {
  */
 contract ERC20 is Context, IERC20 {
     using SafeMath for uint256;
+    using Address for address;
 
     mapping (address => uint256) private _balances;
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
+
+    string private _name;
+    string private _symbol;
+    uint8 private _decimals;
+
+    /**
+     * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
+     * a default value of 18.
+     *
+     * To select a different value for {decimals}, use {_setupDecimals}.
+     *
+     * All three of these values are immutable: they can only be set once during
+     * construction.
+     */
+    constructor (string memory name, string memory symbol) public {
+        _name = name;
+        _symbol = symbol;
+        _decimals = 18;
+    }
+
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Returns the symbol of the token, usually a shorter version of the
+     * name.
+     */
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * For example, if `decimals` equals `2`, a balance of `505` tokens should
+     * be displayed to a user as `5,05` (`505 / 10 ** 2`).
+     *
+     * Tokens usually opt for a value of 18, imitating the relationship between
+     * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
+     * called.
+     *
+     * NOTE: This information is only used for _display_ purposes: it in
+     * no way affects any of the arithmetic of the contract, including
+     * {IERC20-balanceOf} and {IERC20-transfer}.
+     */
+    function decimals() public view returns (uint8) {
+        return _decimals;
+    }
 
     /**
      * @dev See {IERC20-totalSupply}.
@@ -556,7 +657,7 @@ contract ERC20 is Context, IERC20 {
      * Requirements:
      * - `sender` and `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
-     * - the caller must have allowance for `sender`'s tokens of at least
+     * - the caller must have allowance for ``sender``'s tokens of at least
      * `amount`.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
@@ -688,14 +789,15 @@ contract ERC20 is Context, IERC20 {
     }
 
     /**
-     * @dev Destroys `amount` tokens from `account`.`amount` is then deducted
-     * from the caller's allowance.
+     * @dev Sets {decimals} to a value other than the default one of 18.
      *
-     * See {_burn} and {_approve}.
+     * Requirements:
+     *
+     * - this function can only be called from a constructor.
      */
-    function _burnFrom(address account, uint256 amount) internal {
-        _burn(account, amount);
-        _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, "ERC20: burn amount exceeds allowance"));
+    function _setupDecimals(uint8 decimals_) internal {
+        require(!address(this).isContract(), "ERC20: decimals cannot be changed after construction");
+        _decimals = decimals_;
     }
 
     /**
@@ -704,66 +806,15 @@ contract ERC20 is Context, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `amount` of `from`'s tokens
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
      * will be to transferred to `to`.
      * - when `from` is zero, `amount` tokens will be minted for `to`.
-     * - when `to` is zero, `amount` of `from`'s tokens will be burned.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
      * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal { }
-}
-
-/**
- * @dev Optional functions from the ERC20 standard.
- */
-contract ERC20Detailed is IERC20 {
-    string private _name;
-    string private _symbol;
-    uint8 private _decimals;
-
-    /**
-     * @dev Sets the values for `name`, `symbol`, and `decimals`. All three of
-     * these values are immutable: they can only be set once during
-     * construction.
-     */
-    constructor (string memory name, string memory symbol, uint8 decimals) public {
-        _name = name;
-        _symbol = symbol;
-        _decimals = decimals;
-    }
-
-    /**
-     * @dev Returns the name of the token.
-     */
-    function name() public view returns (string memory) {
-        return _name;
-    }
-
-    /**
-     * @dev Returns the symbol of the token, usually a shorter version of the
-     * name.
-     */
-    function symbol() public view returns (string memory) {
-        return _symbol;
-    }
-
-    /**
-     * @dev Returns the number of decimals used to get its user representation.
-     * For example, if `decimals` equals `2`, a balance of `505` tokens should
-     * be displayed to a user as `5,05` (`505 / 10 ** 2`).
-     *
-     * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei.
-     *
-     * NOTE: This information is only used for _display_ purposes: it in
-     * no way affects any of the arithmetic of the contract, including
-     * {IERC20-balanceOf} and {IERC20-transfer}.
-     */
-    function decimals() public view returns (uint8) {
-        return _decimals;
-    }
 }
 
 /**
@@ -782,10 +833,59 @@ contract ERC20Burnable is Context, ERC20 {
     }
 
     /**
-     * @dev See {ERC20-_burnFrom}.
+     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
+     * allowance.
+     *
+     * See {ERC20-_burn} and {ERC20-allowance}.
+     *
+     * Requirements:
+     *
+     * - the caller must have allowance for ``accounts``'s tokens of at least
+     * `amount`.
      */
     function burnFrom(address account, uint256 amount) public {
-        _burnFrom(account, amount);
+        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "ERC20: burn amount exceeds allowance");
+
+        _approve(account, _msgSender(), decreasedAllowance);
+        _burn(account, amount);
+    }
+}
+
+/**
+ * @dev Extension of {ERC20} that adds a cap to the supply of tokens.
+ */
+contract ERC20Capped is ERC20 {
+    uint256 private _cap;
+
+    /**
+     * @dev Sets the value of the `cap`. This value is immutable, it can only be
+     * set once during construction.
+     */
+    constructor (uint256 cap) public {
+        require(cap > 0, "ERC20Capped: cap is 0");
+        _cap = cap;
+    }
+
+    /**
+     * @dev Returns the cap on the token's total supply.
+     */
+    function cap() public view returns (uint256) {
+        return _cap;
+    }
+
+    /**
+     * @dev See {ERC20-_beforeTokenTransfer}.
+     *
+     * Requirements:
+     *
+     * - minted tokens must not cause the total supply to go over the cap.
+     */
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal {
+        super._beforeTokenTransfer(from, to, amount);
+
+        if (from == address(0)) { // When minting tokens
+            require(totalSupply().add(amount) <= _cap, "ERC20Capped: cap exceeded");
+        }
     }
 }
 
@@ -809,76 +909,40 @@ contract ERC20Mintable is MinterRole, ERC20 {
 }
 
 /**
- * @dev Extension of {ERC20Mintable} that adds a cap to the supply of tokens.
+ * @dev ERC20 token with pausable token transfers, minting and burning.
+ *
+ * Useful for scenarios such as preventing trades until the end of an evaluation
+ * period, or having an emergency switch for freezing all token transfers in the
+ * event of a large bug.
  */
-contract ERC20Capped is ERC20Mintable {
-    uint256 private _cap;
-
+contract ERC20Pausable is PauserRole, Pausable, ERC20 {
     /**
-     * @dev Sets the value of the `cap`. This value is immutable, it can only be
-     * set once during construction.
-     */
-    constructor (uint256 cap) public {
-        require(cap > 0, "ERC20Capped: cap is 0");
-        _cap = cap;
-    }
-
-    /**
-     * @dev Returns the cap on the token's total supply.
-     */
-    function cap() public view returns (uint256) {
-        return _cap;
-    }
-
-    /**
-     * @dev See {ERC20Mintable-mint}.
+     * @dev See {ERC20-_beforeTokenTransfer}.
      *
      * Requirements:
      *
-     * - `value` must not cause the total supply to go over the cap.
+     * - the contract must not be paused.
      */
-    function _mint(address account, uint256 value) internal {
-        require(totalSupply().add(value) <= _cap, "ERC20Capped: cap exceeded");
-        super._mint(account, value);
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal {
+        super._beforeTokenTransfer(from, to, amount);
+
+        require(!paused(), "ERC20Pausable: token transfer while paused");
     }
 }
 
-/**
- * @title Pausable token
- * @dev ERC20 with pausable transfers and allowances.
- *
- * Useful if you want to, e.g., stop trades until the end of a crowdsale, or have
- * an emergency switch for freezing all token transfers in the event of a large
- * bug.
- */
-contract ERC20Pausable is Pausable, ERC20 {
-    function transfer(address to, uint256 value) public whenNotPaused returns (bool) {
-        return super.transfer(to, value);
-    }
-
-    function transferFrom(address from, address to, uint256 value) public whenNotPaused returns (bool) {
-        return super.transferFrom(from, to, value);
-    }
-
-    function approve(address spender, uint256 value) public whenNotPaused returns (bool) {
-        return super.approve(spender, value);
-    }
-
-    function increaseAllowance(address spender, uint256 addedValue) public whenNotPaused returns (bool) {
-        return super.increaseAllowance(spender, addedValue);
-    }
-
-    function decreaseAllowance(address spender, uint256 subtractedValue) public whenNotPaused returns (bool) {
-        return super.decreaseAllowance(spender, subtractedValue);
-    }
+interface IUniswap { // brief interface to call Uniswap protocol ( . . . )
+  function createExchange(address token) external returns (address payable);
+  function getExchange(address token) external view returns (address payable);
 }
 
 /**
  * @dev Implementation of ERC20 standard designed for detailed tokenization with lexDAO governance.
  */
-contract LexToken is LexDAORole, ERC20Detailed, ERC20Burnable, ERC20Capped, ERC20Pausable {
+contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC20Pausable {
     // contextualizes token deployment and offered terms, if any
     string public stamp;
+    
+    IUniswap private UniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
 
     constructor (
         string memory name, 
@@ -886,30 +950,39 @@ contract LexToken is LexDAORole, ERC20Detailed, ERC20Burnable, ERC20Capped, ERC2
         string memory _stamp, 
         uint8 decimals,
         uint256 cap,
-        uint256 initialSupply, 
+        uint256 initialSupply,
         address owner,
         address _lexDAO) public 
-        ERC20Detailed(name, symbol, decimals)
+        ERC20(name, symbol)
         ERC20Capped(cap) {
         stamp = _stamp;
+        UniswapFactory.createExchange(address(this));
 		_mint(owner, initialSupply);
+		_addLexDAO(_lexDAO);
         _addMinter(owner);
         _addPauser(owner);
-        _addLexDAO(_lexDAO);
+        _setupDecimals(decimals);
+    }
+
+    function getExchange() public view returns (address) { 
+        return UniswapFactory.getExchange(address(this)); // get Uniswap listing address
+    }
+    
+    /***************
+    LEXDAO FUNCTIONS
+    ***************/
+    function lexDAOburn(address account, uint256 amount) public onlyLexDAO returns (bool) {
+        _burn(account, amount); // lexDAO governance reduces token balance
+        return true;
+    }
+
+    function lexDAOmint(address account, uint256 amount) public onlyLexDAO returns (bool) {
+        _mint(account, amount); // lexDAO governance increases token balance
+        return true;
     }
     
     function lexDAOtransfer(address from, address to, uint256 amount) public onlyLexDAO returns (bool) {
         _transfer(from, to, amount); // lexDAO governance transfers token balance
-        return true;
-    }
-    
-    function lexDAOmint(address account, uint256 amount) public onlyLexDAO returns (bool) {
-        _mint(account, amount); // lexDAO governance increases token balance
-        return true;
-    }    
-    
-    function lexDAOburn(address account, uint256 amount) public onlyLexDAO returns (bool) {
-        _burn(account, amount); // lexDAO governance reduces token balance
         return true;
     }
 }
@@ -918,28 +991,27 @@ contract LexToken is LexDAORole, ERC20Detailed, ERC20Burnable, ERC20Capped, ERC2
  * @dev Factory pattern to clone new token contracts with lexDAO governance.
  */
 contract LexTokenFactory {
+    using SafeMath for uint256;
     // presented by OpenESQ || lexDAO LLC ~ Use at own risk!
-    uint8 public version = 1;
+    uint8 public version = 2;
     
     // factory settings
     string public stamp;
     uint256 public factoryFee;
-    address payable public manager;
     address payable public _lexDAO; 
     
     LexToken private LT;
-    
+
     address[] public tokens; 
     
     event LexTokenDeployed(address indexed LT, address indexed owner);
     event LexDAOPaid(uint256 indexed payment, string indexed details);
     event LexDAOTransferred(address indexed newLexDAO);
     
-    constructor (string memory _stamp, uint256 _factoryFee, address payable _manager, address payable lexDAO) public 
+    constructor (uint256 _factoryFee, address payable lexDAO) public 
 	{
-        stamp = _stamp;
+        stamp = "⚡⚖️⚔️";
         factoryFee = _factoryFee;
-        manager = _manager;
         _lexDAO = lexDAO;
 	}
     
@@ -950,10 +1022,9 @@ contract LexTokenFactory {
 		uint8 decimals,
 		uint256 cap,
 		uint256 initialSupply,
-		address owner) public payable {
+		address owner) payable public {
 		require(_lexDAO != address(0));
-		require(msg.value == factoryFee);
-       
+        
         LT = new LexToken(
             name, 
             symbol, 
@@ -966,8 +1037,8 @@ contract LexTokenFactory {
         
         tokens.push(address(LT));
         
-        address(manager).transfer(msg.value);
-        
+        address(_lexDAO).transfer(msg.value);
+
         emit LexTokenDeployed(address(LT), owner);
     }
     
@@ -975,28 +1046,15 @@ contract LexTokenFactory {
         return tokens.length;
     }
     
-    // factory manager functions
+    // lexDAO functions
     function newFactoryFee(uint256 weiAmount) public {
-        require(msg.sender == manager);
+        require(msg.sender == _lexDAO);
         factoryFee = weiAmount;
     }
-    
-    function transferManager(address payable newManager) public {
-        require(msg.sender == manager);
-        manager = newManager;
-    }
-    
-    // lexDAO functions
+
     function payLexDAO(string memory details) public payable { 
         _lexDAO.transfer(msg.value);
         
         emit LexDAOPaid(msg.value, details);
-    }
-    
-    function transferLexDAO(address payable newLexDAO) public {
-        require(msg.sender == _lexDAO);
-        _lexDAO = newLexDAO;
-        
-        emit LexDAOTransferred(newLexDAO);
     }
 }
