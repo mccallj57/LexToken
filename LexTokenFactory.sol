@@ -942,7 +942,9 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
     // contextualizes token deployment and offered terms, if any
     string public stamp;
     
-    IUniswap private UniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
+   	// Uniswap exchange protocol references
+	IUniswap private uniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
+    address public uniswapExchange;
 
     constructor (
         string memory name, 
@@ -956,7 +958,11 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         ERC20(name, symbol)
         ERC20Capped(cap) {
         stamp = _stamp;
-        UniswapFactory.createExchange(address(this));
+        
+        uniswapFactory.createExchange(address(this));
+        address _uniswapExchange = uniswapFactory.getExchange(address(this));
+        uniswapExchange = _uniswapExchange;
+
 		_mint(owner, initialSupply);
 		_addLexDAO(_lexDAO);
         _addMinter(owner);
@@ -964,10 +970,6 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         _setupDecimals(decimals);
     }
 
-    function getExchange() public view returns (address) { 
-        return UniswapFactory.getExchange(address(this)); // get Uniswap listing address
-    }
-    
     /***************
     LEXDAO FUNCTIONS
     ***************/
@@ -991,7 +993,6 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
  * @dev Factory pattern to clone new token contracts with lexDAO governance.
  */
 contract LexTokenFactory {
-    using SafeMath for uint256;
     // presented by OpenESQ || lexDAO LLC ~ Use at own risk!
     uint8 public version = 2;
     
@@ -1001,12 +1002,10 @@ contract LexTokenFactory {
     address payable public _lexDAO; 
     
     LexToken private LT;
-
     address[] public tokens; 
     
     event LexTokenDeployed(address indexed LT, address indexed owner);
     event LexDAOPaid(uint256 indexed payment, string indexed details);
-    event LexDAOTransferred(address indexed newLexDAO);
     
     constructor (uint256 _factoryFee, address payable lexDAO) public 
 	{
@@ -1036,9 +1035,7 @@ contract LexTokenFactory {
             _lexDAO);
         
         tokens.push(address(LT));
-        
         address(_lexDAO).transfer(msg.value);
-
         emit LexTokenDeployed(address(LT), owner);
     }
     
@@ -1046,15 +1043,18 @@ contract LexTokenFactory {
         return tokens.length;
     }
     
-    // lexDAO functions
-    function newFactoryFee(uint256 weiAmount) public {
+    /***************
+    LEXDAO FUNCTIONS
+    ***************/
+    function newFactoryFee(uint256 weiAmount) public returns (bool) {
         require(msg.sender == _lexDAO);
         factoryFee = weiAmount;
+        return true;
     }
 
-    function payLexDAO(string memory details) public payable { 
+    function payLexDAO(string memory details) payable public returns (bool) { 
         _lexDAO.transfer(msg.value);
-        
         emit LexDAOPaid(msg.value, details);
+        return true;
     }
 }
