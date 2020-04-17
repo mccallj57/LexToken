@@ -931,8 +931,8 @@ contract ERC20Pausable is PauserRole, Pausable, ERC20 {
 }
 
 interface IUniswap { // brief interface to call Uniswap protocol ( . . . )
-  function createExchange(address token) external returns (address payable);
-  function getExchange(address token) external view returns (address payable);
+    function createExchange(address token) external returns (address payable);
+    function getExchange(address token) external view returns (address payable);
 }
 
 /**
@@ -942,8 +942,8 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
     // contextualizes token deployment and offered terms, if any
     string public stamp;
     
-   	// Uniswap exchange protocol references
-	IUniswap private uniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
+    // Uniswap exchange protocol references
+    IUniswap private uniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
     address public uniswapExchange;
 
     constructor (
@@ -963,8 +963,8 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         address _uniswapExchange = uniswapFactory.getExchange(address(this));
         uniswapExchange = _uniswapExchange;
 
-		_mint(owner, initialSupply);
-		_addLexDAO(_lexDAO);
+	_mint(owner, initialSupply);
+	_addLexDAO(_lexDAO);
         _addMinter(owner);
         _addPauser(owner);
         _setupDecimals(decimals);
@@ -1008,21 +1008,21 @@ contract LexTokenFactory {
     event LexDAOPaid(uint256 indexed payment, string indexed details);
     
     constructor (uint256 _factoryFee, address payable lexDAO) public 
-	{
+    {
         stamp = "⚡⚖️⚔️";
         factoryFee = _factoryFee;
         _lexDAO = lexDAO;
-	}
+    }
     
     function newLexToken( // public can issue stamped lex token for factory ether (Ξ) fee
         string memory name, 
-		string memory symbol,
-		string memory _stamp,
-		uint8 decimals,
-		uint256 cap,
-		uint256 initialSupply,
-		address owner) payable public {
-		require(_lexDAO != address(0));
+	string memory symbol,
+	string memory _stamp,
+	uint8 decimals,
+	uint256 cap,
+	uint256 initialSupply,
+	address owner) payable public {
+	require(_lexDAO != address(0));
         
         LT = new LexToken(
             name, 
