@@ -1,7 +1,7 @@
 # LexToken
 Standard Ethereum (ERC-20) Tokens with LexDAO Governance:
 
-[ERC20 LexToken Factory](https://etherscan.io/address/0x0a57ea1b0152858a4b07b1ee8548a86f49189256#code)⚡⚖️⚔️
+[ERC20 LexToken Factory](https://etherscan.io/address/0x42afC7798A18e7ce82AAa8965AC64B5662f954d0#code)⚡⚖️⚔️
 
 ## Governance
 
