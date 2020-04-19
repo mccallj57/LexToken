@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at Etherscan.io on 2020-04-19
+*/
+
 pragma solidity 0.5.14;
 
 /*
@@ -177,7 +181,7 @@ contract PauserRole is Context {
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-contract Pausable is Context, PauserRole {
+contract Pausable is PauserRole {
     /**
      * @dev Emitted when the pause is triggered by a pauser (`account`).
      */
@@ -822,7 +826,7 @@ contract ERC20 is Context, IERC20 {
  * tokens and those that they have an allowance for, in a way that can be
  * recognized off-chain (via event analysis).
  */
-contract ERC20Burnable is Context, ERC20 {
+contract ERC20Burnable is ERC20 {
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
@@ -930,7 +934,7 @@ contract ERC20Pausable is Pausable, ERC20 {
     }
 }
 
-interface IUniswap { // brief interface to call Uniswap protocol ( . . . )
+interface IUniswap { // brief interface to call Uniswap exchange protocol ( . . . )
     function createExchange(address token) external returns (address payable);
     function getExchange(address token) external view returns (address payable);
 }
@@ -1008,11 +1012,11 @@ contract LexTokenFactory {
     event LexDAOPaid(uint256 indexed payment, string indexed details);
     
     constructor (uint256 _factoryFee, address payable lexDAO) public 
-	{
+    {
         stamp = "⚡⚖️⚔️";
         factoryFee = _factoryFee;
         _lexDAO = lexDAO;
-	}
+    }
     
     function newLexToken( // public can issue stamped lex token for factory ether (Ξ) fee
         string memory name, 
