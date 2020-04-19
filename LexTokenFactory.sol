@@ -177,21 +177,22 @@ contract PauserRole is Context {
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-contract Pausable is Context {
+contract Pausable is Context, PauserRole {
     /**
-     * @dev Emitted when the pause is triggered by `account`.
+     * @dev Emitted when the pause is triggered by a pauser (`account`).
      */
     event Paused(address account);
 
     /**
-     * @dev Emitted when the pause is lifted by `account`.
+     * @dev Emitted when the pause is lifted by a pauser (`account`).
      */
     event Unpaused(address account);
 
     bool private _paused;
 
     /**
-     * @dev Initializes the contract in unpaused state.
+     * @dev Initializes the contract in unpaused state. Assigns the Pauser role
+     * to the deployer.
      */
     constructor () internal {
         _paused = false;
@@ -221,17 +222,17 @@ contract Pausable is Context {
     }
 
     /**
-     * @dev Triggers stopped state.
+     * @dev Called by a pauser to pause, triggers stopped state.
      */
-    function _pause() internal whenNotPaused {
+    function pause() public onlyPauser whenNotPaused {
         _paused = true;
         emit Paused(_msgSender());
     }
 
     /**
-     * @dev Returns to normal state.
+     * @dev Called by a pauser to unpause, returns to normal state.
      */
-    function _unpause() internal whenPaused {
+    function unpause() public onlyPauser whenPaused {
         _paused = false;
         emit Unpaused(_msgSender());
     }
@@ -791,12 +792,11 @@ contract ERC20 is Context, IERC20 {
     /**
      * @dev Sets {decimals} to a value other than the default one of 18.
      *
-     * Requirements:
-     *
-     * - this function can only be called from a constructor.
+     * WARNING: This function should only be called from the constructor. Most
+     * applications that interact with token contracts will not expect
+     * {decimals} to ever change, and may work incorrectly if it does.
      */
     function _setupDecimals(uint8 decimals_) internal {
-        require(!address(this).isContract(), "ERC20: decimals cannot be changed after construction");
         _decimals = decimals_;
     }
 
@@ -915,7 +915,7 @@ contract ERC20Mintable is MinterRole, ERC20 {
  * period, or having an emergency switch for freezing all token transfers in the
  * event of a large bug.
  */
-contract ERC20Pausable is PauserRole, Pausable, ERC20 {
+contract ERC20Pausable is Pausable, ERC20 {
     /**
      * @dev See {ERC20-_beforeTokenTransfer}.
      *
@@ -1008,11 +1008,11 @@ contract LexTokenFactory {
     event LexDAOPaid(uint256 indexed payment, string indexed details);
     
     constructor (uint256 _factoryFee, address payable lexDAO) public 
-    {
+	{
         stamp = "⚡⚖️⚔️";
         factoryFee = _factoryFee;
         _lexDAO = lexDAO;
-    }
+	}
     
     function newLexToken( // public can issue stamped lex token for factory ether (Ξ) fee
         string memory name, 
