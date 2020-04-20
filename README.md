@@ -1,7 +1,7 @@
-# LexToken
+# LexToken ⚡⚖️⚔️
 Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Mintable, Pausable*
 
-[LexToken ERC20 Factory](https://etherscan.io/address/0x00534caeB1c9A7fbE59449653914ECcd4bCfBdB6#code)⚡⚖️⚔️ *0x005 . . .*
+[LexToken ERC20 Factory](https://etherscan.io/address/0x00534caeB1c9A7fbE59449653914ECcd4bCfBdB6#code) *0x005 . . .*
 
 ## Smart Contract
 
