@@ -19,6 +19,10 @@ If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chr
 
 All LexToken deployments automatically create an exchange on [Uniswap](https://uniswap.exchange/) (🦄) which can be read in each verified LexToken smart contract and deployment transaction.
 
+## Dapps powered by LexToken ✨
+
+* [PersonalToken.Me](https://personaltoken.me/) 👥
+
 ## Governance
 
 [LexDAO](http://nightly.aragon.org/#/lexdao) members vote to resolve lost or disputed balances of LexTokens. LexDAO and other accounts granted the `LexDAORole` control the following functions on all LexTokens:
