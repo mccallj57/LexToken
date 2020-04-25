@@ -942,8 +942,8 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
     // contextualizes token deployment and offered terms, if any
     string public stamp;
     
-   	// Uniswap exchange protocol references
-	IUniswap private uniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
+    // Uniswap exchange protocol references
+    IUniswap private uniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
     address public uniswapExchange;
 
     constructor (
@@ -963,10 +963,10 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         address _uniswapExchange = uniswapFactory.getExchange(address(this));
         uniswapExchange = _uniswapExchange;
 
-		_mint(owner, initialSupply);
-		_addLexDAO(_lexDAO);
+	_addLexDAO(_lexDAO);
         _addMinter(owner);
         _addPauser(owner);
+        _mint(owner, initialSupply);
         _setupDecimals(decimals);
     }
 
@@ -1003,8 +1003,9 @@ contract LexTokenFactory {
     LexToken private LT;
     address[] public tokens; 
     
+    event FactoryFeeUpdated(uint256 indexed updatedFactoryFee);
+    event LexDAOPaid(string indexed details, uint256 indexed payment);
     event LexTokenDeployed(address indexed LT, address indexed owner);
-    event LexDAOPaid(uint256 indexed payment, string indexed details);
     
     constructor (
         string memory _stamp, 
@@ -1012,26 +1013,27 @@ contract LexTokenFactory {
         address _deployer, 
         address payable lexDAO,
         bool _gated) public 
-	{
+    {
         stamp = _stamp;
         factoryFee = _factoryFee;
         deployer = _deployer;
         _lexDAO = lexDAO;
         gated = _gated;
-	}
+    }
     
     function newLexToken( // public can issue stamped lex token for factory ether (Ξ) fee
         string memory name, 
-		string memory symbol,
-		string memory _stamp,
-		uint8 decimals,
-		uint256 cap,
-		uint256 initialSupply,
-		address owner) payable public {
-		require(_lexDAO != address(0));
+	string memory symbol,
+	string memory _stamp,
+	uint8 decimals,
+	uint256 cap,
+	uint256 initialSupply,
+	address owner) payable public {
+	require(msg.value == factoryFee);
+	require(_lexDAO != address(0));
 		
-		if (gated == true) {
-            require(msg.sender == deployer);
+	if (gated == true) {
+         require(msg.sender == deployer);
         }
         
         LT = new LexToken(
@@ -1056,14 +1058,15 @@ contract LexTokenFactory {
     /***************
     LEXDAO FUNCTIONS
     ***************/
-    function newFactoryFee(uint256 weiAmount) public {
-        require(msg.sender == _lexDAO);
-        factoryFee = weiAmount;
-    }
-
     function payLexDAO(string memory details) payable public { 
         _lexDAO.transfer(msg.value);
-        emit LexDAOPaid(msg.value, details);
+        emit LexDAOPaid(details, msg.value);
+    }
+    
+    function updateFactoryFee(uint256 updatedFactoryFee) public {
+        require(msg.sender == _lexDAO);
+        factoryFee = updatedFactoryFee;
+        emit FactoryFeeUpdated(updatedFactoryFee);
     }
 }
 
@@ -1073,6 +1076,7 @@ contract LexTokenFactory {
 contract LexTokenFactoryMaker {
     // presented by OpenESQ || lexDAO LLC ~ Use at own risk! 
     address payable public _lexDAO; // lexDAO Agent
+    bool public certified; // lexDAO certification status
     
     LexTokenFactory private factory;
     address[] public factories; 
@@ -1080,9 +1084,9 @@ contract LexTokenFactoryMaker {
     event Deployed(address indexed deployer, address indexed factory, bool indexed _gated);
     
     constructor (address payable lexDAO) public 
-	{
+    {
         _lexDAO = lexDAO;
-	}
+    }
     
     function newLexTokenFactory(
         string memory _stamp,
@@ -1108,12 +1112,17 @@ contract LexTokenFactoryMaker {
     /***************
     LEXDAO FUNCTIONS
     ***************/
+    function certifyContract(bool _certified) public {
+        require(msg.sender == _lexDAO);
+        certified = _certified;
+    }
+    
     function tipLexDAO() public payable { // forwards ether (Ξ) tip to lexDAO Agent
         _lexDAO.transfer(msg.value);
     }
     
-    function updateDAO(address payable newDAO) public {
+    function updateLexDAO(address payable updatedLexDAO) public {
         require(msg.sender == _lexDAO);
-        _lexDAO = newDAO;
+        _lexDAO = updatedLexDAO;
     }
 }
