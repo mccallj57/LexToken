@@ -7,13 +7,13 @@ Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Min
 
 ## LexToken Factory Maker
 
-The `LexTokenFactoryMaker` deployment allows the public to deploy LexToken factories (see below) for a 0.0009 ETH fee. 
+The `LexTokenFactoryMaker` allows the public to deploy LexToken factories for a 0.0009 ETH fee. 
 
-These factories can be programmed with their own `FactoryFee` payable in ETH, string `stamp` and can be further set as `gated` to restrict factory access to a `deployer` account. For example, an Aragon DAO might use the Agent app to control a LexToken Factory and issue a series of token assets with group commitments attached. A general purpose LexToken factory is documented below 👇.
+These factories can be programmed with their own `FactoryFee` payable in ETH, string `stamp` and can be further set as `gated` to restrict factory access to a `deployer` account. For example, an Aragon DAO might use the Agent app to control a LexToken Factory and issue a series of token assets with a vote of group commitments attached in this index.  A general purpose LexToken factory is documented below 👇.
 
 ## LexToken Factory
 
-THe `LexToken Factory` deployment allows the public to deploy custom LexToken (ERC-20) for a 0.0009 ETH fee.
+THe `LexToken Factory` allows the public to deploy custom LexToken (ERC-20) for a 0.0009 ETH fee.
 
 [Etherscan](https://etherscan.io/) is a popular explorer for the Ethereum blockchain.
 
