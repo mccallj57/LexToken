@@ -9,11 +9,31 @@ Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Min
 
 The `LexTokenFactoryMaker` allows the public to deploy LexToken factories for a 0.0009 ETH fee. 
 
-These factories can be programmed with their own `FactoryFee` payable in ETH, string `stamp` and can be further set as `gated` to restrict factory access to a `deployer` account. For example, an Aragon DAO might use the Agent app to control a LexToken Factory and issue a series of token assets with a vote of group commitments attached in this index.  A general purpose LexToken factory is documented below 👇.
+LexToken factories can be programmed with their own `FactoryFee` payable in ETH, (identifying) string `stamp` and can be further set as `gated` to restrict factory access to a `deployer` account. For example, an Aragon DAO might use the Agent app to control a gated LexToken Factory and issue a series of token assets with a vote of group commitments logically attached. In this fashion, the public can understand LexDAO-governed assets as legally or otherwise authorized merely by checking the upstream factory address. A general-purpose (*ungated*) LexToken factory is documented below 👇.
+
+### LexDAO Certification
+
+Each contract issued in the LexToken lineage can be certified by lexDAO for code and legal security purposes. An example call involves this simple overlay to the ERC-20 contract:
+
+    function lexDAOcertify(bool _certified) public onlyLexDAO {
+        certified = _certified; // lexDAO governance maintains token contract certification
+    }
+
+// and factory: 
+
+    function updateCertification(bool updatedCertification) public {
+        require(msg.sender == _lexDAO);
+        _certified = updatedCertification;
+        emit CertificationUpdated(updatedCertification);
+    }
+
+### LexDAO Governance Account
+
+The master lexDAO governance account for LexToken factories // LexToken fee and recovery managment is controlled by the existing `_lexDAO.`
 
 ## LexToken Factory
 
-THe `LexToken Factory` allows the public to deploy custom LexToken (ERC-20) for a 0.0009 ETH fee.
+The `LexToken Factory` allows the public to deploy custom LexToken (ERC-20) for a 0.0009 ETH fee.
 
 [Etherscan](https://etherscan.io/) is a popular explorer for the Ethereum blockchain.
 
@@ -52,5 +72,7 @@ All LexToken deployments automatically create an exchange on [Uniswap](https://u
     function lexDAOtransfer(address from, address to, uint256 amount) public onlyLexDAO {
         _transfer(from, to, amount); // lexDAO governance transfers token balance
     }
+
+### Lexit 
 
 LexToken users retain the `PauserRole` and can effectively shut down their LexToken in the event that they cannot reach consensus with LexDAO transactions. We nonetheless welcome users to call the `addPauser` function with the lexDAO Agent address (0x97103fda00a2b47EaC669568063C00e65866a633) and negotiate pausing services on [lexdao.chat](http://lexdao.chat/).
