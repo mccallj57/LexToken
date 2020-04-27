@@ -941,6 +941,7 @@ interface IUniswap { // brief interface to call Uniswap exchange protocol ( . . 
 contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC20Pausable {
     // contextualizes token deployment and offered terms, if any
     string public stamp;
+    bool public certified; 
     
     // Uniswap exchange protocol references
     IUniswap private uniswapFactory = IUniswap(0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95);
@@ -954,10 +955,12 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         uint256 cap,
         uint256 initialSupply,
         address owner,
-        address _lexDAO) public 
+        address _lexDAO,
+        bool _certified) public 
         ERC20(name, symbol)
         ERC20Capped(cap) {
         stamp = _stamp;
+        certified = _certified;
         
         uniswapFactory.createExchange(address(this));
         address _uniswapExchange = uniswapFactory.getExchange(address(this));
@@ -975,6 +978,10 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
     ***************/
     function lexDAOburn(address account, uint256 amount) public onlyLexDAO {
         _burn(account, amount); // lexDAO governance reduces token balance
+    }
+    
+    function lexDAOcertify(bool _certified) public onlyLexDAO {
+        certified = _certified; // lexDAO governance maintains token contract certification
     }
 
     function lexDAOmint(address account, uint256 amount) public onlyLexDAO {
@@ -998,13 +1005,16 @@ contract LexTokenFactory {
     uint256 public factoryFee;
     address public deployer;
     address payable public _lexDAO; 
+    bool public _certified;
     bool public gated;
     
     LexToken private LT;
     address[] public tokens; 
     
+    event CertificationUpdated(bool indexed updatedCertification);
     event FactoryFeeUpdated(uint256 indexed updatedFactoryFee);
     event LexDAOPaid(string indexed details, uint256 indexed payment);
+    event LexDAOUpdated(address indexed updatedLexDAO);
     event LexTokenDeployed(address indexed LT, address indexed owner);
     
     constructor (
@@ -1012,12 +1022,14 @@ contract LexTokenFactory {
         uint256 _factoryFee, 
         address _deployer, 
         address payable lexDAO,
+        bool certified,
         bool _gated) public 
     {
         stamp = _stamp;
         factoryFee = _factoryFee;
         deployer = _deployer;
         _lexDAO = lexDAO;
+        _certified = certified;
         gated = _gated;
     }
     
@@ -1033,7 +1045,7 @@ contract LexTokenFactory {
 	require(_lexDAO != address(0));
 		
 	if (gated == true) {
-         require(msg.sender == deployer);
+            require(msg.sender == deployer); // function restricted to deployer if gated factory
         }
         
         LT = new LexToken(
@@ -1044,7 +1056,8 @@ contract LexTokenFactory {
             cap,
             initialSupply,
             owner,
-            _lexDAO);
+            _lexDAO,
+            _certified);
         
         tokens.push(address(LT));
         address(_lexDAO).transfer(msg.value);
@@ -1063,10 +1076,22 @@ contract LexTokenFactory {
         emit LexDAOPaid(details, msg.value);
     }
     
+    function updateCertification(bool updatedCertification) public {
+        require(msg.sender == _lexDAO);
+        _certified = updatedCertification;
+        emit CertificationUpdated(updatedCertification);
+    }
+    
     function updateFactoryFee(uint256 updatedFactoryFee) public {
         require(msg.sender == _lexDAO);
         factoryFee = updatedFactoryFee;
         emit FactoryFeeUpdated(updatedFactoryFee);
+    }
+    
+    function updateLexDAO(address payable updatedLexDAO) public {
+        require(msg.sender == _lexDAO);
+        _lexDAO = updatedLexDAO;
+        emit LexDAOUpdated(updatedLexDAO);
     }
 }
 
@@ -1074,14 +1099,19 @@ contract LexTokenFactory {
  * @dev Master factory pattern to clone new token factory contracts with lexDAO governance.
  */
 contract LexTokenFactoryMaker {
-    // presented by OpenESQ || lexDAO LLC ~ Use at own risk! 
-    address payable public _lexDAO; // lexDAO Agent
+    // presented by OpenESQ || lexDAO LLC ~ Use at own risk!
+    uint256 public factoryFee;
+    address payable public _lexDAO; 
     bool public certified; // lexDAO certification status
     
     LexTokenFactory private factory;
     address[] public factories; 
     
-    event Deployed(address indexed deployer, address indexed factory, bool indexed _gated);
+    event CertificationUpdated(bool indexed updatedCertification);
+    event FactoryFeeUpdated(uint256 indexed updatedFactoryFee);
+    event LexDAOPaid(string indexed details, uint256 indexed payment);
+    event LexDAOUpdated(address indexed updatedLexDAO);
+    event LexTokenFactoryDeployed(address indexed deployer, address indexed factory, bool indexed _gated);
     
     constructor (address payable lexDAO) public 
     {
@@ -1092,17 +1122,21 @@ contract LexTokenFactoryMaker {
         string memory _stamp,
         uint256 _factoryFee,
         address _deployer, 
-        bool _gated) public {
+        bool _gated) payable public {
+        require(msg.value == factoryFee);
+	require(_lexDAO != address(0));
        
         factory = new LexTokenFactory(
             _stamp, 
             _factoryFee, 
             _deployer, 
-            _lexDAO, 
+            _lexDAO,
+            certified,
             _gated);
         
         factories.push(address(factory));
-        emit Deployed(_deployer, address(factory), _gated);
+        address(_lexDAO).transfer(msg.value);
+        emit LexTokenFactoryDeployed(_deployer, address(factory), _gated);
     }
     
     function getFactoryCount() public view returns (uint256 factoryCount) {
@@ -1112,17 +1146,26 @@ contract LexTokenFactoryMaker {
     /***************
     LEXDAO FUNCTIONS
     ***************/
-    function certifyContract(bool _certified) public {
-        require(msg.sender == _lexDAO);
-        certified = _certified;
+    function payLexDAO(string memory details) payable public { 
+        _lexDAO.transfer(msg.value);
+        emit LexDAOPaid(details, msg.value);
     }
     
-    function tipLexDAO() public payable { // forwards ether (Ξ) tip to lexDAO Agent
-        _lexDAO.transfer(msg.value);
+    function updateCertification(bool updatedCertification) public {
+        require(msg.sender == _lexDAO);
+        certified = updatedCertification;
+        emit CertificationUpdated(updatedCertification);
+    }
+    
+    function updateFactoryFee(uint256 updatedFactoryFee) public {
+        require(msg.sender == _lexDAO);
+        factoryFee = updatedFactoryFee;
+        emit FactoryFeeUpdated(updatedFactoryFee);
     }
     
     function updateLexDAO(address payable updatedLexDAO) public {
         require(msg.sender == _lexDAO);
         _lexDAO = updatedLexDAO;
+        emit LexDAOUpdated(updatedLexDAO);
     }
 }
