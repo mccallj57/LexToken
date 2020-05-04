@@ -3,7 +3,7 @@ Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Min
 
 [LexToken Factory Maker](https://etherscan.io/address/https://etherscan.io/address/0x80CFbE26CCA322411F9F005d25ba54127618Fcb0#code) *0x80C . . .*
 
-[LexToken Factory](https://etherscan.io/address/https://etherscan.io/address/0x99755ceba6460491173307985ea7c0cdb0a84d7a#code) *0x997 . . .*
+[LexToken Factory](https://etherscan.io/address/0x99755ceba6460491173307985ea7c0cdb0a84d7a#code) *0x997 . . .*
 
 ## LexToken Factory Maker
 
