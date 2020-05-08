@@ -1,35 +1,7 @@
 # LexToken ⚡⚖️⚔️
 Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Mintable, Pausable, Uniswap-enabled*
 
-[LexToken Factory Maker](https://etherscan.io/address/0x80CFbE26CCA322411F9F005d25ba54127618Fcb0#code) *0x80C . . .*
-
-- [LexToken Factory](https://etherscan.io/address/0x99755ceba6460491173307985ea7c0cdb0a84d7a#code) *0x997 . . .*
-
-- [LexToken Gated Factory](https://etherscan.io/address/0xe01d65AA026beFdD4771B1c9C1a9cDF93999fE72#code) *0xE01 . . .* 
-
-## LexToken Factory Maker
-
-The `LexTokenFactoryMaker` allows the public to deploy LexToken factories for a 0.0009 ETH fee. It is mostly designed for LexDAO network deployments (but this should not discourage joint ventures!).
-
-LexToken factories can be programmed with their own `FactoryFee` payable in ETH to the then-listed LexDAO account, (identifying) string `stamp`, and can be further set as `gated` to restrict factory access to a `deployer` account. For example, an Aragon DAO might use the Agent app to control a gated LexToken Factory and issue a series of token assets with a vote of group commitments logically attached. In this fashion, the public can understand LexDAO-governed assets as legally or otherwise authorized merely by checking the upstream factory address. A general-purpose (*ungated*) LexToken factory is documented further below 👇.
-
-### LexDAO Certification
-
-Each contract issued in the LexToken lineage can be certified by lexDAO for code and legal security purposes. An example call involves this simple overlay to the ERC-20 contract:
-
-    function lexDAOcertify(bool _certified) public onlyLexDAO {
-        certified = _certified; // lexDAO governance maintains token contract certification
-    }
-
-// and factory: 
-
-    function updateCertification(bool updatedCertification) public {
-        require(msg.sender == _lexDAO);
-        _certified = updatedCertification;
-        emit CertificationUpdated(updatedCertification);
-    }
-
-Tokens issued from certified factories will automatically bear this stamp.
+- [LexToken Factory](https://etherscan.io/address/0x093bC4C8918522f09b4C2a31CF9Ab2556De694C8#code) *0x093 . . .*
 
 ### LexDAO Governance Account
 
@@ -76,6 +48,24 @@ All LexToken deployments automatically create an exchange on [Uniswap](https://u
     function lexDAOtransfer(address from, address to, uint256 amount) public onlyLexDAO {
         _transfer(from, to, amount); // lexDAO governance transfers token balance
     }
+
+### LexDAO Certification
+
+Each contract issued in the LexToken lineage can be certified by lexDAO for code and legal security purposes. An example call involves this simple overlay to the ERC-20 contract:
+
+    function lexDAOcertify(bool _certified) public onlyLexDAO {
+        certified = _certified; // lexDAO governance maintains token contract certification
+    }
+
+// and factory: 
+
+    function updateCertification(bool updatedCertification) public {
+        require(msg.sender == _lexDAO);
+        _certified = updatedCertification;
+        emit CertificationUpdated(updatedCertification);
+    }
+
+Tokens issued from certified factories will automatically bear this stamp.
 
 ### Lexit 
 
