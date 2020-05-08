@@ -15,9 +15,9 @@ The `LexToken Factory` allows the public to deploy custom LexToken (ERC-20) for 
 
 Etherscan further provides an interface to read and write from the LexToken Factory code deployed on Ethereum: 
 
-[READ](https://etherscan.io/dapp/0x99755ceba6460491173307985ea7c0cdb0a84d7a#readContract) to keep track of LexToken deployments 🧮
+[READ](https://etherscan.io/dapp/0x093bC4C8918522f09b4C2a31CF9Ab2556De694C8#readContract) to keep track of LexToken deployments 🧮
 
-[WRITE](https://etherscan.io/dapp/0x99755ceba6460491173307985ea7c0cdb0a84d7a#writeContract) to deploy LexToken from Factory 🏭
+[WRITE](https://etherscan.io/dapp/0x093bC4C8918522f09b4C2a31CF9Ab2556De694C8#writeContract) to deploy LexToken from Factory 🏭
 
 If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chrome, Firefox or Brave browser and ETH to pay for transactions, you can deploy a LexToken with custom parameters, such as initial supply and hard cap, as well as make direct petitions to lexDAO members to resolve balances. 
 
