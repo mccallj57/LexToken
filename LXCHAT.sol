@@ -91,7 +91,7 @@ interface IToken { // brief ERC-20 interface
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
 
-contract LXCHAT is Ownable { // Post with LexDAO Legal Engineers & Apprentices
+contract LXCHAT is Ownable { // post with LexDAO Legal Engineers & Apprentices
     address public accessToken = 0xAF0348b2A3818BD6Bc1f12bd2a9f73F1B725448F;
     address public lexAccessToken = 0x4D9D9a22458dD84dB8B0D074470f5d9536116eC5;
     IToken private token = IToken(accessToken);
