@@ -116,8 +116,8 @@ contract LXCHAT is Ownable { // perma post with lexDAO legal engineers & apprent
     // accessToken holder functions
     function newPost(string memory details) public { // accessToken holder (>= 1) can always write to contract
         require(token.balanceOf(_msgSender()) >= 1000000000000000000, "accessToken balance insufficient");
-            uint256 index = posts + 1; 
-            posts = posts + 1;
+        uint256 index = posts + 1; 
+        posts = posts + 1;
             
             postings[index] = post(
                 _msgSender(),
