@@ -91,33 +91,61 @@ interface IToken { // brief ERC-20 interface
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
 
-contract LXCHAT is Ownable { // post with LexDAO Legal Engineers & Apprentices
+contract LXCHAT is Ownable { // perma post with lexDAO legal engineers & apprentices
     address public accessToken = 0xAF0348b2A3818BD6Bc1f12bd2a9f73F1B725448F;
-    address public lexAccessToken = 0x4D9D9a22458dD84dB8B0D074470f5d9536116eC5;
+    address public leethToken = 0x4D9D9a22458dD84dB8B0D074470f5d9536116eC5;
     IToken private token = IToken(accessToken);
-    IToken private lexToken = IToken(lexToken);
+    IToken private leeth = IToken(leethToken);
+    uint256 public posts;
     string public redemptionOffer;
     
-    event LexPosting(string indexed details);
-    event Offering(string indexed details);
-    event Posting(string indexed details);
-    event Redemption(string indexed details);
+    mapping (uint256 => post) public postings; 
     
-    // accessToken holder functions
-    function redeem(string memory details) public { // accessToken holder can deposit (1) to redeem current offer 
-        token.transferFrom(_msgSender(), address(this), 1000000000000000000);
-        emit Redemption(details);
+    event LexPosting(uint256 indexed index, string indexed details);
+    event Offering(string indexed details);
+    event Posting(uint256 indexed index, string indexed details);
+    event Redemption(string indexed details, string indexed redemptionOffer);
+    
+    struct post {
+        address poster;
+        uint256 index;
+        string details;
+        string response;
     }
     
-    function write(string memory details) public { // accessToken holder (>= 1) can always write to contract
-        require(token.balanceOf(_msgSender()) >= 1000000000000000000);
-        emit Posting(details);
+    // accessToken holder functions
+    function newPost(string memory details) public { // accessToken holder (>= 1) can always write to contract
+        require(token.balanceOf(_msgSender()) >= 1000000000000000000, "accessToken balance insufficient");
+            uint256 index = posts + 1; 
+            posts = posts + 1;
+            
+            postings[index] = post(
+                _msgSender(),
+                index,
+                details,
+                "");
+        
+        emit Posting(index, details);
     } 
     
+    function redeemOffer(string memory details) public { // accessToken holder can deposit (1) to redeem current offer 
+        token.transferFrom(_msgSender(), address(this), 1000000000000000000);
+        emit Redemption(details, redemptionOffer);
+    }
+    
+    function updatePost(uint256 index, string memory details) public { // accessToken holder can always update posts
+        post storage p = postings[index];
+        require(_msgSender() == p.poster, "must be indexed poster");
+        p.details = details;
+        emit Posting(index, details);
+    }
+
     // lexDAO functions
-    function lexWrite(string memory details) public { // lexToken holder (5) can always write to contract
-        require(lexToken.balanceOf(_msgSender()) >= 5000000000000000000);
-        emit LexPosting(details);
+    function lexPost(uint256 index, string memory details) public { // leethToken holder (5) can always write responses to posts
+        require(leeth.balanceOf(_msgSender()) >= 5000000000000000000, "leeth balance insufficient");
+        post storage p = postings[index];
+        p.response = details;
+        emit LexPosting(index, details);
     }
     
     function updateRedemptionOffer(string memory details) public onlyOwner { // owner can update redemption offer for accessToken
