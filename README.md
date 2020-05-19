@@ -1,7 +1,7 @@
 # LexToken ⚡⚖️⚔️
-Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Mintable, Pausable, Uniswap-enabled*
+Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Mintable, Pausable*
 
-- [LexToken Factory](https://etherscan.io/address/0x093bC4C8918522f09b4C2a31CF9Ab2556De694C8#code) *0x093 . . .*
+- [LexToken Factory](https://etherscan.io/address/0xE34061D31bf1CED909b5beC817ba30A75b5A5B02#code) *0xE34 . . .*
 - [RINKEBY TESTNET](https://rinkeby.etherscan.io/address/0xe096f9b8fd625244303f913783544d8f6858d681#code) *0xe09 . . .*
 
 ### LexDAO Governance Account
@@ -21,10 +21,6 @@ Etherscan further provides an interface to read and write from the LexToken Fact
 [WRITE](https://etherscan.io/dapp/0x093bC4C8918522f09b4C2a31CF9Ab2556De694C8#writeContract) to deploy LexToken from Factory 🏭
 
 If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chrome, Firefox or Brave browser and ETH to pay for transactions, you can deploy a LexToken with custom parameters, such as initial supply and hard cap, as well as make direct petitions to lexDAO members to resolve balances. 
-
-## Uniswap Listing
-
-All LexToken deployments automatically create an exchange on [Uniswap](https://uniswap.exchange/) (🦄) which can be read in each verified LexToken smart contract and deployment transaction.
 
 ## Dapps powered by LexToken ✨
 
