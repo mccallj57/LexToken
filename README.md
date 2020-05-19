@@ -2,6 +2,7 @@
 Standard Ethereum (ERC-20) Tokens with LexDAO Governance: *Burnable, Capped, Mintable, Pausable, Uniswap-enabled*
 
 - [LexToken Factory](https://etherscan.io/address/0x093bC4C8918522f09b4C2a31CF9Ab2556De694C8#code) *0x093 . . .*
+- [RINKEBY TESTNET](https://rinkeby.etherscan.io/address/0xe096f9b8fd625244303f913783544d8f6858d681#code) *0xe09 . . .*
 
 ### LexDAO Governance Account
 
