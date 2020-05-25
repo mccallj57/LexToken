@@ -50,7 +50,7 @@ If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chr
     
 ### LexDAO Certification
 
-Each contract issued in the LexToken lineage can be certified by lexDAO for code and legal security purposes. An example call involves this simple overlay to the ERC-20 contract:
+Each LexToken can be certified by lexDAO for wet and dry code quality:
 
     function lexDAOcertify(string memory details, bool _lexDAOcertified) public onlyLexDAO {
         lexDAOcertified = _lexDAOcertified; // lexDAO governance adjusts token certification
@@ -59,9 +59,7 @@ Each contract issued in the LexToken lineage can be certified by lexDAO for code
 
 ### Lexit 
 
-LexToken users retain the `PauserRole` and can effectively shut down their LexToken in the event that they cannot reach consensus with LexDAO transactions. We nonetheless welcome users to call the `addPauser` function with the lexDAO Agent address (0x97103fda00a2b47EaC669568063C00e65866a633) and negotiate pausing services on [lexdao.chat](http://lexdao.chat/).
-
-Further, pauser admin(s) can toggle LexDAO governance on-and-off by calling the following function:
+LexToken users start with `PauserRole` and can effectively shut down their LexToken in the event that they cannot reach consensus with LexDAO transactions, freezing `lexDAOtransfer`. Further, pauser admin(s) can toggle LexDAO governance on-and-off by calling the following function:
 
     function lexDAOgovernance(string memory details, bool _lexDAOgoverned) public onlyPauser {
         lexDAOgoverned = _lexDAOgoverned; // pauser admin(s) adjust lexDAO governance 
