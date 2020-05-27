@@ -1,6 +1,8 @@
 # LexToken ⚡⚖️⚔️
 Standard Ethereum (ERC-20) Tokens with opt-in LexDAO Governance: *Burn, Cap, Mint, Pause, Stamp*
 
+[![built-with openzeppelin](https://img.shields.io/badge/built%20with-OpenZeppelin-3677FF)](https://docs.openzeppelin.com/)
+
 ## LexToken Factory
 
 `Factory` deployments allow the public to issue custom LexToken (ERC-20) for a 0.0009 ETH fee:
