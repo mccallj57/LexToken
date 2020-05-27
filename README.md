@@ -16,9 +16,9 @@ Standard Ethereum (ERC-20) Tokens with opt-in LexDAO Governance: *Burn, Cap, Min
 
 Etherscan further provides an interface to read and write from the LexToken Factory code deployed on Ethereum: 
 
-[READ](https://etherscan.io/dapp/0xc47e4bbdd9cdfa9a1209d05c3ded2e9b2e49dfee#readContract) to keep track of LexToken deployments 🧮
+[READ](https://etherscan.io/dapp/0xAD5B189E64f3D972dec81F286b6101782aD37943#readContract) to keep track of LexToken deployments 🧮
 
-[WRITE](https://etherscan.io/dapp/0xc47e4bbdd9cdfa9a1209d05c3ded2e9b2e49dfee#writeContract) to deploy LexToken from Factory 🏭
+[WRITE](https://etherscan.io/dapp/0xAD5B189E64f3D972dec81F286b6101782aD37943#writeContract) to deploy LexToken from Factory 🏭
 
 If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chrome, Firefox or Brave browser and ETH to pay for transactions, you can deploy a LexToken with custom parameters, such as initial supply and hard cap, as well as make direct petitions to lexDAO members to resolve balances if governance is enabled. 
 
