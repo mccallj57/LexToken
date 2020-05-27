@@ -999,7 +999,7 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
     LEXDAO FUNCTIONS
     ***************/
     modifier onlyLexDAOgoverned () {
-        require(lexDAOgoverned == true);
+        require(lexDAOgoverned == true, "token not under lexDAO governance");
         _;
     }
 
@@ -1057,7 +1057,7 @@ contract LexTokenFactory is Context {
 	uint256 initialSupply,
 	address owner,
 	bool _lexDAOgoverned) payable public {
-	require(msg.value == factoryFee);
+	require(msg.value == factoryFee, "factory fee not attached");
 
         LT = new LexToken(
             name, 
@@ -1088,7 +1088,7 @@ contract LexTokenFactory is Context {
     LEXDAO FUNCTIONS
     ***************/
     modifier onlyLexDAO () {
-        require(_msgSender() == _lexDAO);
+        require(_msgSender() == _lexDAO, "caller not lexDAO");
         _;
     }
 
