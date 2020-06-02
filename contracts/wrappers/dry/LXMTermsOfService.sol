@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2020-06-02
-*/
-
 /*
 || <📜️️> Smart Terms of Service (STOS) <⚖> ||
 
