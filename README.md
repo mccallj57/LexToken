@@ -28,7 +28,7 @@ If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chr
 
 ## Governance
 
-[LexDAO](http://nightly.aragon.org/#/lexdao) members vote to resolve lost or disputed balances of LexTokens. LexDAO and other accounts granted the `LexDAORole` control the following functions on all LexTokens:
+[LexDAO Token Review](https://nightly.aragon.org/#/lexdaotokenreview) members vote to resolve lost or disputed balances of LexTokens. LexDAO and other accounts granted the `LexDAORole` control the following functions on all LexTokens:
 
     modifier onlyLexDAOgoverned () {
         require(lexDAOgoverned == true);
@@ -52,7 +52,7 @@ If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chr
     
 ### LexDAO Certification
 
-Each LexToken can be certified by lexDAO for wet and dry code quality:
+Each LexToken can be certified by lexDAO for wet and dry code quality (for example, "Does my LexTokenized land deed pass muster?"):
 
     function lexDAOcertify(string memory details, bool _lexDAOcertified) public onlyLexDAO {
         lexDAOcertified = _lexDAOcertified; // lexDAO governance adjusts token certification
