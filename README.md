@@ -24,7 +24,7 @@ If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chr
 
 ## Dapps powered by LexToken ✨
 
-* [LexDAO Personal Token Factory](https://lexdao.org/#/personal-token)
+* [LexDAO Personal Token Factory](https://lexdao.org/#/personal-token) ⚔️
 > Personal "Time" Token launcher with LexDAO-certified parameters.
 * [PersonalToken.Me](https://personaltoken.me/) 👥
 > Generalized Personal Token launcher with OpenLaw ricardian docs.
