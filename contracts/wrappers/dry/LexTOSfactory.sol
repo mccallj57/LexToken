@@ -46,72 +46,15 @@ contract Context {
     }
 }
 
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
-contract Ownable is Context {
-    address private _owner;
-
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        require(_owner == _msgSender(), "Ownable: caller is not the owner");
-        _;
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public onlyOwner {
-        emit OwnershipTransferred(_owner, address(0));
-        _owner = address(0);
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        emit OwnershipTransferred(_owner, newOwner);
-        _owner = newOwner;
-    }
-}
-
 interface IToken { // brief ERC-20 interface
     function balanceOf(address account) external view returns (uint256);
     function burn(uint256 amount) external;
     function transfer(address recipient, uint256 amount) external;
 }
 
-/*********************
-SMART TERMS OF SERVICE
-*********************/
-contract LexTOS is Context, Ownable { 
+contract LexTOS is Context { 
     IToken public OT; 
+    address payable public owner;
     uint256 public purchaseRate;
     uint256 public redemptionAmount;
     string public offer;
@@ -128,21 +71,23 @@ contract LexTOS is Context, Ownable {
         string details;
     }
     
-    event OfferUpgraded(string indexed _offer);
-    event PurchaseRateUpgraded(uint256 indexed _purchaseRate);
-    event RedemptionAmountUpgraded(uint256 indexed _redemptionAmount);
-    event Signed(address indexed signatory, uint256 indexed number, string indexed details);
-    event TermsUpgraded(string indexed _terms);
+    event OfferUpdated(string indexed _offer);
+    event OfferRedeemed(address indexed signatory, uint256 indexed number, string indexed details);
+    event OwnerPaid(address indexed sender, uint256 indexed payment, string indexed details);
+    event OwnerUpdated(address indexed _owner);
+    event PurchaseRateUpdated(uint256 indexed _purchaseRate);
+    event RedemptionAmountUpdated(uint256 indexed _redemptionAmount);
+    event TermsUpdated(string indexed _terms);
     
     constructor (
         address _offerToken, // offer token for mkt
-        address _owner, // initial owner of TOS / offer 
+        address payable _owner, // initial owner of TOS / offer 
         uint256 _purchaseRate, 
         uint256 _redemptionAmount, 
         string memory _offer, 
         string memory _terms) public {
         OT = IToken(_offerToken);
-        transferOwnership(_owner);
+        owner = _owner;
         purchaseRate = _purchaseRate;
         redemptionAmount = _redemptionAmount;
         offer = _offer;
@@ -155,6 +100,7 @@ contract LexTOS is Context, Ownable {
     function() external payable { 
         uint256 purchaseAmount = msg.value * purchaseRate;
         OT.transfer(_msgSender(), purchaseAmount);
+        owner.transfer(msg.value);
     } 
     
     function redeemOffer(string memory details) public {
@@ -168,58 +114,67 @@ contract LexTOS is Context, Ownable {
             details);
                 
         OT.burn(redemptionAmount);
-        emit Signed(_msgSender(), number, details);
+        emit OfferRedeemed(_msgSender(), number, details);
     }
  
-    /*************
-    MGMT FUNCTIONS
-    *************/
-    // offer / terms
-    function upgradeOffer(string memory _offer) public onlyOwner {
+    /**************
+    OWNER FUNCTIONS
+    **************/
+    modifier onlyOwner () {
+        require(_msgSender() == owner, "caller not owner");
+        _;
+    }
+    
+    function payOwner(string memory details) payable public { // public attaches ether (Ξ) with details to owner
+        owner.transfer(msg.value);
+        emit OwnerPaid(_msgSender(), msg.value, details);
+    }
+
+    function updateOffer(string memory _offer) public onlyOwner {
         offer = _offer;
-        emit OfferUpgraded(_offer);
-    } 
+        emit OfferUpdated(_offer);
+    }
     
-    function upgradeTerms(string memory _terms) public onlyOwner {
-        terms = _terms;
-        emit TermsUpgraded(_terms);
-    } 
+    function updateOwner(address payable _owner) public onlyOwner {
+        owner = _owner;
+        emit OwnerUpdated(_owner);
+    }
     
-    // OT mgmt
-    function upgradePurchaseRate(uint256 _purchaseRate) public onlyOwner {
+    function updatePurchaseRate(uint256 _purchaseRate) public onlyOwner {
         purchaseRate = _purchaseRate;
-        emit PurchaseRateUpgraded(_purchaseRate);
+        emit PurchaseRateUpdated(_purchaseRate);
     }
     
-    function upgradeRedemptionAmount(uint256 _redemptionAmount) public onlyOwner {
+    function updateRedemptionAmount(uint256 _redemptionAmount) public onlyOwner {
         redemptionAmount = _redemptionAmount;
-        emit RedemptionAmountUpgraded(_redemptionAmount);
+        emit RedemptionAmountUpdated(_redemptionAmount);
     }
     
-    function withdrawETH() public onlyOwner {
-        address(_msgSender()).transfer(address(this).balance);
+    function updateTerms(string memory _terms) public onlyOwner {
+        terms = _terms;
+        emit TermsUpdated(_terms);
     }
-    
+
     function withdrawOT() public onlyOwner {
         OT.transfer(_msgSender(), OT.balanceOf(address(this)));
-    } 
+    }
 }
 
 contract LexTOSfactory is Context {
     // presented by OpenESQ || LexDAO LLC ~ Use at own risk! || chat with us: lexdao.chat 
-    string public stamp;
+    address payable public lexDAO; 
     uint8 public version = 1;
     uint256 public factoryFee;
-    address payable public lexDAO; 
+    string public stamp;
     
     LexTOS private TOS;
     address[] public tos; 
     
     event FactoryFeeUpdated(uint256 indexed _factoryFee);
     event FactoryStampUpdated(string indexed _stamp);
-    event LexDAOpaid(string indexed details, uint256 indexed payment, address indexed sender);
+    event LexDAOpaid(address indexed sender, uint256 indexed payment, string indexed details);
     event LexDAOupdated(address indexed _lexDAO);
-    event tosDeployed(address indexed TOS, address indexed owner);
+    event tosDeployed(address indexed TOS, address indexed _owner);
     
     constructor (
         string memory _stamp, 
@@ -233,7 +188,7 @@ contract LexTOSfactory is Context {
     
     function newLexTOS( // public issues LexTOS for factory ether (Ξ) fee
         address _offerToken, 
-        address _owner, 
+        address payable _owner, 
         uint256 _purchaseRate, 
         uint256 _redemptionAmount, 
         string memory _offer, 
@@ -255,7 +210,7 @@ contract LexTOSfactory is Context {
     
     function payLexDAO(string memory details) payable public { // public attaches ether (Ξ) with details to lexDAO
         lexDAO.transfer(msg.value);
-        emit LexDAOpaid(details, msg.value, _msgSender());
+        emit LexDAOpaid(_msgSender(), msg.value, details);
     }
     
     function getTOSCount() public view returns (uint256) {
