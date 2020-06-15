@@ -1198,18 +1198,18 @@ contract LexTokenFactory is Context {
 	bool _lexDAOgoverned) payable public {
 	require(msg.value == factoryFee, "factory fee not attached");
 
-        	LT = new LexToken(
-            		name, 
-            		symbol, 
-            		_stamp,
-            		decimals,
-            		cap,
-            		initialSupply,
-            		_ethPurchaseRate,
-            		_lexDAO,
-            		_owner,
-            		_forSale,
-            		_lexDAOgoverned);
+        LT = new LexToken(
+            name, 
+            symbol, 
+            _stamp,
+            decimals,
+            cap,
+            initialSupply,
+            _ethPurchaseRate,
+            _lexDAO,
+            _owner,
+            _forSale,
+            _lexDAOgoverned);
         
         tokens.push(address(LT));
         address(_lexDAO).transfer(msg.value);
