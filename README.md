@@ -7,8 +7,8 @@ Standard Ethereum (ERC-20) Tokens with opt-in LexDAO Governance: *Burn, Cap, Min
 
 `Factory` deployments allow the public to issue custom LexToken (ERC-20) for a 0.0009 ETH fee:
 
-- [Ethereum Mainnet](https://etherscan.io/address/0xAD5B189E64f3D972dec81F286b6101782aD37943#code) *0xAD5B . . .*
-- [Rinkeby Testnet](https://rinkeby.etherscan.io/address/0x4A29ae06056873C436bD53301620270328757b87#code) *0x4A29 . . .*
+- [Ethereum Mainnet](https://etherscan.io/address/0xde2bd2986CFBccD8061A935859d06B24d5684cC9#code) *0xde2bd . . .*
+- [Rinkeby Testnet](https://rinkeby.etherscan.io/address/0x18f77190a665D4A5550E78C68a91dD4b5803C96D#code) *0x18f77 . . .*
 
 ### Getting started:
 
@@ -16,9 +16,9 @@ Standard Ethereum (ERC-20) Tokens with opt-in LexDAO Governance: *Burn, Cap, Min
 
 Etherscan further provides an interface to read and write from the LexToken Factory code deployed on Ethereum: 
 
-[READ](https://etherscan.io/dapp/0xAD5B189E64f3D972dec81F286b6101782aD37943#readContract) to keep track of LexToken deployments 🧮
+[READ](https://etherscan.io/dapp/0xde2bd2986CFBccD8061A935859d06B24d5684cC9#readContract) to keep track of LexToken deployments 🧮
 
-[WRITE](https://etherscan.io/dapp/0xAD5B189E64f3D972dec81F286b6101782aD37943#writeContract) to deploy LexToken from Factory 🏭
+[WRITE](https://etherscan.io/dapp/0xde2bd2986CFBccD8061A935859d06B24d5684cC9#writeContract) to deploy LexToken from Factory 🏭
 
 If you have a [MetaMask](https://metamask.io/) wallet account (🦊) on your Chrome, Firefox or Brave browser and ETH to pay for transactions, you can deploy a LexToken with custom parameters, such as initial supply and hard cap, as well as make direct petitions to lexDAO members to resolve balances if governance is enabled. 
 
