@@ -8,7 +8,7 @@ Standard Ethereum (ERC-20) Tokens with opt-in LexDAO Governance: *Burn, Cap, Min
 `Factory` deployments allow the public to issue custom LexToken (ERC-20) for a 0.0009 ETH fee:
 
 - [Ethereum Mainnet](https://etherscan.io/address/0xde2bd2986CFBccD8061A935859d06B24d5684cC9#code) *0xde2bd . . .*
-- [Rinkeby Testnet](https://rinkeby.etherscan.io/address/0x18f77190a665D4A5550E78C68a91dD4b5803C96D#code) *0x18f77 . . .*
+- [Rinkeby Testnet](https://rinkeby.etherscan.io/address/0x4C9CbB9af00A6A49fb6fD909FCB747C2231710D5#code) *0x4C9Cb . . .*
 
 ### Getting started:
 
