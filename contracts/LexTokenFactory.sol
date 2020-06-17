@@ -1085,7 +1085,6 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         
         // Makes the fractions work on a ETH-basis vs. using wei amounts.
         uint256 decimalFactor = 10*uint256(18);
-        uint256 wholeEth = 10*uint256(18);
         
         /** 
          * @dev - Set Token Price 
@@ -1096,7 +1095,7 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
          * e.g. setting ethPurchaseRate = 10, means that LexTokens will be issued from 0x and sent to msg.sender for 1 ETH. 
         **/
         
-        uint256 ethPurchaseRatio = (wholeEth.mul(ethPurchaseRate)).div(decimalFactor);
+        uint256 ethPurchaseRatio = (decimalFactor.mul(ethPurchaseRate)).div(decimalFactor);
         
         uint256 purchaseAmount = msg.value * ethPurchaseRatio;
         _mint(_msgSender(), purchaseAmount);
