@@ -993,8 +993,8 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         string memory _stamp, 
         uint8 decimals,
         uint256 cap,
-        uint256 initialSupply,
-        uint256 _ethPurchaseRate,
+        uint256 initialSupply, // Initial supply remains with token minter and not issued from this contract. 
+        uint256 _ethPurchaseRate, // Set between 1-100 to get ratio of LexTokens issued to ETH. 
         address _lexDAO,
         address payable _owner,
         bool _forSale,
@@ -1007,7 +1007,7 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         forSale = _forSale;
         lexDAOgoverned = _lexDAOgoverned;
 
-	_addLexDAO(_lexDAO);
+	    _addLexDAO(_lexDAO);
         _addMinter(_owner);
         _addPauser(_owner);
         initDomainSeparator(name);
@@ -1082,7 +1082,23 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
     ***************/
     function() external payable { // received ETH mints LexToken to sender at ethPurchaseRate
         require(forSale == true, "LexToken not for sale");
-        uint256 purchaseAmount = msg.value * ethPurchaseRate;
+        
+        // Makes the fractions work on a ETH-basis vs. using wei amounts.
+        uint256 decimalFactor = 10*uint256(18);
+        uint256 wholeEth = 10*uint256(18);
+        
+        /** 
+         * @dev - Set Token Price 
+         * 
+         * Issues number of tokens programmatically based on a ratio of LexToken to WholeEth. 
+         * Limitation is that a single LexToken cannot cost more than 1 ETH. 
+         * Sends new LexToken from 0x address and not from initial supply, which remains with minter. 
+         * e.g. setting ethPurchaseRate = 10, means that LexTokens will be issued from 0x and sent to msg.sender for 1 ETH. 
+        **/
+        
+        uint256 ethPurchaseRatio = (wholeEth.mul(ethPurchaseRate)).div(decimalFactor);
+        
+        uint256 purchaseAmount = msg.value * ethPurchaseRatio;
         _mint(_msgSender(), purchaseAmount);
         owner.transfer(msg.value);
     }
