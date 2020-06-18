@@ -994,7 +994,7 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
         uint8 decimals,
         uint256 cap,
         uint256 initialSupply, // Initial supply remains with token minter and not issued from this contract. 
-        uint256 _ethPurchaseRate, // Set between 1-100 to get ratio of LexTokens issued to ETH. 
+        uint256 _ethPurchaseRate, // Set above 1 to get ratio of LexTokens issued per ETH. 
         address _lexDAO,
         address payable _owner,
         bool _forSale,
@@ -1083,17 +1083,19 @@ contract LexToken is LexDAORole, ERC20Burnable, ERC20Capped, ERC20Mintable, ERC2
     function() external payable { 
         require(forSale == true, "LexToken not for sale");
         // Makes the fractions work on ETH-basis vs. using wei amounts.
-        uint256 decimalFactor = 10*uint256(18);
-        uint256 wholeEth = 10*uint256(18);
+        
         /** 
          * @dev - Set Token Price 
          * 
          * Issues number of tokens programmatically based on a ratio of LexToken to WholeEth. 
          * Limitation is that a single LexToken cannot cost more than 1 ETH. 
          * Sends new LexToken from 0x address and not from initial supply, which remains with minter. 
-         */
-        uint256 ethPurchaseRatio = (wholeEth.mul(ethPurchaseRate)).div(decimalFactor);
-        uint256 purchaseAmount = msg.value.mul(ethPurchaseRatio);
+
+         * e.g. setting ethPurchaseRate = 10, means that 10 LexTokens will be issued from 0x and sent to msg.sender for 1 ETH. 
+        **/
+        
+        uint256 purchaseAmount = msg.value * ethPurchaseRate;
+
         _mint(_msgSender(), purchaseAmount);
         owner.transfer(msg.value);
     }
